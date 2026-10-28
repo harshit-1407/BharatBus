@@ -15,6 +15,8 @@ export const DEMO_ROUTE = {
     [77.2760, 28.6520],
     [77.2890, 28.6585],
   ] as LngLat[],
+  // DEMO restricted segment (pretend expressway: boarding prohibited)
+  restricted: [{ fromM: 5500, toM: 6800, reason: 'DEMO expressway segment: boarding prohibited' }],
   stops: [
     { id: 'S1', name: 'DEMO Stop A', lngLat: [77.209, 28.6139] as LngLat },
     { id: 'S2', name: 'DEMO Stop B', lngLat: [77.2400, 28.6340] as LngLat },
