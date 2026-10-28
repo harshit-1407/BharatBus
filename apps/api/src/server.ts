@@ -9,6 +9,8 @@ import { allPositions, getPosition } from './store';
 import { startSimulator } from './simulator';
 import { assessBoarding, withDistances } from './boarding';
 import { demoScheduledArrivals } from './schedule';
+import { createTrackingRouter } from './tracking';
+import { loadDevices } from './auth';
 
 const DEMO_MODE = process.env.DEMO_MODE !== 'false';
 const PORT = Number(process.env.PORT ?? 4000);
@@ -17,9 +19,14 @@ const STOPS = withDistances(DEMO_ROUTE.line, DEMO_ROUTE.stops);
 const app = express();
 app.use(helmet());
 app.use(cors({ origin: ['http://localhost:5173'] }));
-app.use(express.json());
+app.use(express.json({ verify: (req, _res, buf) => { (req as any).rawBody = buf.toString('utf8'); } }));
 
 const clients = new Set<express.Response>();
+const broadcast = () => {
+  const payload = `data: ${JSON.stringify(allPositions())}\n\n`;
+  for (const c of clients) c.write(payload);
+};
+app.use('/api/tracking', createTrackingRouter(loadDevices(DEMO_MODE), broadcast));
 const latLng = z.object({
   lat: z.coerce.number().min(-90).max(90),
   lng: z.coerce.number().min(-180).max(180),
@@ -103,10 +110,7 @@ app.get('/api/stream/buses', (req, res) => {
 });
 
 if (DEMO_MODE) {
-  startSimulator(() => {
-    const payload = `data: ${JSON.stringify(allPositions())}\n\n`;
-    for (const c of clients) c.write(payload);
-  });
+  startSimulator(broadcast);
   console.log('DEMO MODE: simulated buses only. This is NOT real tracking.');
 }
 

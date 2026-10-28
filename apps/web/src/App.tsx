@@ -164,7 +164,7 @@ export default function App() {
           ))}
           {buses.map((bus) => (
             <CircleMarker key={bus.busId} center={[bus.lat, bus.lng]} radius={9} pathOptions={{ color: '#b45309', fillOpacity: 0.8 }}>
-              <Tooltip permanent>{bus.busId} (simulated)</Tooltip>
+              <Tooltip permanent>{bus.busId} ({bus.source.toLowerCase()})</Tooltip>
             </CircleMarker>
           ))}
           <CircleMarker center={me} radius={8} pathOptions={{ color: '#2563eb' }}>
